@@ -1,63 +1,79 @@
-# Apache Guacamole deployment procedure
+# Apache Guacamole Deployment Guide
+## Requirements
+This deployment requires Docker Engine and Docker Compose installed on the host server.
 
-## Container stack deployment
-1. Clone this repository.
+For installation instructions, visit the official [Docker documentation](https://docs.docker.com/engine/install/).
 
-2. Edit the `docker-compose.yml` file. Replace both database user and root passwords with secure passwords.
+## Deployment Steps
+1. Clone the Repository
+```bash
+git clone https://github.com/josel82/guacamole-deployment-guide.git
+cd guacamole-deployment-guide
+```
+2. Configure Environment
+Edit the `docker-compose.yml` file and replace the default database user and root passwords with secure credentials.
 
-3. Run docker compose.
+3. Launch the Containers
+Run the following command:
 ```bash
 docker compose up -d
 ```
-or create a Stack in Portainer.
+Alternatively, you can deploy the stack via Portainer, if installed.
 
-Once the containers are up, its time to set up the database.
+Once the containers are running, proceed to initialize the database.
 
-## MySQL database setup
-1. Get into `guac-sql` container. From the host server, run:
+## MySQL Database Setup
+1. Access the Database Container
+From the host server:
 ```bash
 docker exec -it guac-sql /bin/bash
 ```
-or access it via portainer if you prefer. 
+Or use Portainer to access the terminal.
 
-Once inside the container, run:
+Then start the MySQL CLI:
 ```bash
 mysql -u root -p
 ```
-You will be prompted for the root password.
+Enter the root password when prompted.
 
-2. Upon loging in, create the database.
+2. Create the Database
 ```sql
 CREATE DATABASE guacamole_db;
 ```
 
-3. Then, create a new user.
+3. Create the Database User
+
 ```sql
-CREATE USER 'guacamole_user'@'%' IDENTIFIED BY 'pass123';
-GRANT SELECT,INSERT,UPDATE,DELETE ON guacamole_db.* TO 'guacamole_user'@'%';
+CREATE USER 'guacamole_user'@'%' IDENTIFIED BY 'your_secure_password';
+GRANT SELECT, INSERT, UPDATE, DELETE ON guacamole_db.* TO 'guacamole_user'@'%';
 FLUSH PRIVILEGES;
 ```
-4. Confirm the user was created (Optional)
-```sql
-SELECT USER FROM mysql.user; 
-```
-Leave this terminal open. You will need to come back.
 
-5. Initialize the MySQL database
-- Log into the host server and run the following command:
+Optional: Verify the user creation
+
+
+```sql
+SELECT User FROM mysql.user;
+```
+Leave this terminal open — you'll return to it shortly.
+
+4. Initialize the Guacamole Schema
+On the host machine, generate the initialization SQL:
 ```bash
 docker run --rm guacamole/guacamole /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
 ```
-- Copy the generated script to the `guacamole-sql` container
+Copy the file to the guac-sql container:
 ```bash
-sudo docker cp ./initdb.sql guac-sql:/initdb.sql
+docker cp ./initdb.sql guac-sql:/initdb.sql
 ```
-- Go back to the container terminal and run the following:
+Return to the MySQL shell inside the container and run:
+
 ```sql
-use guacamole_db;
-```
-```sql
-source initdb.sql;
+USE guacamole_db;
+SOURCE initdb.sql;
 ```
 
-At this point you should have successfully configured the database. You can now open guacamole's Web Interface at `http://<server-ip>:8080/guacamole`
+## Accessing Guacamole
+Once setup is complete, open your browser and navigate to:
+`http://<your-server-ip>:8080/guacamole`
+You should now see the Guacamole login interface.
