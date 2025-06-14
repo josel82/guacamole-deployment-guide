@@ -1,7 +1,8 @@
 # Apache Guacamole Deployment Guide
+Credits to [Sonoran Tech](https://www.youtube.com/watch?v=PEUO2cCICS4)
+
 ## Requirements
 This deployment requires Docker Engine and Docker Compose installed on the host server.
-
 For installation instructions, visit the official [Docker documentation](https://docs.docker.com/engine/install/).
 
 ## Deployment Steps
