@@ -1,16 +1,23 @@
 # Apache Guacamole Deployment Guide
-Credits to [Sonoran Tech](https://www.youtube.com/watch?v=PEUO2cCICS4)
+Credits to:
+- [Sonoran Tech](https://www.youtube.com/watch?v=PEUO2cCICS4)
+- [Alex from Tailscale](https://www.youtube.com/watch?v=YTjYXii4WzI&t=514s)
+
+The following steps walk you through setting up Guacamole with docker compose. Instructions on how to integrate Tailscale with this project in `guacamole-tailscale` directory.
 
 ## Requirements
 This deployment requires Docker Engine and Docker Compose installed on the host server.
 For installation instructions, visit the official [Docker documentation](https://docs.docker.com/engine/install/).
+Or visit [get.docker.com](https://get.docker.com/) and download their Docker install script
 
 ## Deployment Steps
-1. Clone the Repository
+1. Clone this Repository
 ```bash
 git clone https://github.com/josel82/guacamole-deployment-guide.git
-cd guacamole-deployment-guide
+cd guacamole-deployment-guide/guacamole
 ```
+**Note:** Tailscale integration on `guacamole-deployment-guide/guacamole-tailscale`
+
 2. Configure Environment
 Edit the `docker-compose.yml` file and replace the default database user and root passwords with secure credentials.
 
