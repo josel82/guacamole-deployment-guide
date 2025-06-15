@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+
+    guacamole-ts:
+      image: tailscale/tailscale:latest
+      container_name: guacamole-ts
+      hostname: guacamole
+      environment:
+        - TS_AUTHKEY=tskey-client-here?ephemeral=true
+        - TS_EXTRA_ARGS=--advertise-tags=tag:container
+        - TS_STATE_DIR=/var/lib/tailscale
+        - TS_USERSPACE=false
+        - TS_SERVE_CONFIG=/config/serve-config.json
+      volumes:
+        - ${PWD}/ts-oauth-test/state:/var/lib/tailscale
+        - ts-config:/config
+      devices:
+        - /dev/net/tun:/dev/net/tun
+      cap_add:
+        - net_admin
+      restart: unless-stopped
+
+    guacd:
+      container_name: guacd
+      image: guacamole/guacd
+      restart: unless-stopped
+      networks:
+        guac-net:
+          ipv4_address: 172.20.0.2
+    
+    guacweb:
+      container_name: guac_web
+      image: guacamole/guacamole
+      restart: unless-stopped
+      ports:
+        - 8080:8080
+      environment:
+        MYSQL_DATABASE: guacamole_db
+        MYSQL_HOSTNAME: 172.20.0.3
+        MYSQL_PASSWORD: pass123
+        MYSQL_USER: guacamole_user
+        GUACD_HOSTNAME: 172.20.0.2
+      depends_on:
+        - guacamole-ts
+        - guacamole-sql
+        - guacd
+      network_mode: service:guacamole-ts
+      networks:
+        guac-net:
+    
+    guacamole-sql:
+      container_name: guac-sql
+      image: mysql
+      restart: unless-stopped
+      environment:
+        MYSQL_ROOT_PASSWORD: Password123!
+      volumes:
+        - dbdata:/var/lib/mysql
+      networks:
+        guac-net:
+          ipv4_address: 172.20.0.3
+
+volumes:
+  dbdata:
+  ts-config:
+
+networks:
+  guac-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.20.0.0/16"
