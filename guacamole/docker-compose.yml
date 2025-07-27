@@ -19,7 +19,7 @@ services:
       environment:
         MYSQL_DATABASE: guacamole_db
         MYSQL_HOSTNAME: 172.20.0.3
-        MYSQL_PASSWORD: /run/secrets/mysql_user_pass
+        MYSQL_PASSWORD_FILE: /run/secrets/mysql_user_pass
         MYSQL_USER: guacamole_user
         GUACD_HOSTNAME: 172.20.0.2
       depends_on:
@@ -35,7 +35,7 @@ services:
       secrets:
         - mysql_root_pass
       environment:
-        MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_pass
+        MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_pass
       volumes:
         - dbdata:/var/lib/mysql
       networks:
