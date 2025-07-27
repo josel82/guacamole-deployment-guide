@@ -36,32 +36,42 @@ services:
     guacweb:
       container_name: guac_web
       image: guacamole/guacamole
-      restart: unless-stopped
+      secrets:
+        - mysql_user_pass
       environment:
         MYSQL_DATABASE: guacamole_db
         MYSQL_HOSTNAME: 172.20.0.3
-        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        MYSQL_PASSWORD: /run/secrets/mysql_user_pass
         MYSQL_USER: guacamole_user
         GUACD_HOSTNAME: 172.20.0.2
       depends_on:
         - guacamole-ts
       network_mode: service:guacamole-ts
+      restart: unless-stopped
       
     
     guacamole-sql:
       container_name: guac-sql
       image: mysql
-      restart: unless-stopped
+      secrets:
+        - mysql_root_pass
       environment:
-        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_pass
       volumes:
         - dbdata:/var/lib/mysql
       networks:
         guac-net:
           ipv4_address: 172.20.0.3
+      restart: unless-stopped
 
 volumes:
   dbdata:
+
+secrets:
+  mysql_user_pass:
+    file: ./secrets/mysql_user_pass
+  mysql_root_pass:
+    file: ./secrets/mysql_root_pass
 
 networks:
   guac-net:
